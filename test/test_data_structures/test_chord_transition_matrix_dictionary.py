@@ -7,25 +7,25 @@ from datastructures.chord_transition_structures import ChordTransitionMatrixDict
 class TestChordTransitionMatrixDictionary(TestCase):
 
     def setUp(self):
-        self.size = 12
+        self.size = 2
         self.tmd = ChordTransitionMatrixDictionary(size=self.size)
 
     def test_init_no_filename(self):
         self.tmd = None
         self.tmd = ChordTransitionMatrixDictionary(size=self.size)
         chords = make_chord_transitions()
-        zeros = [[0 for column in range(self.size)] for row in range(self.size)]
-        chord_dict = dict()
+        chord_dict = {}
         for chord in chords:
-            chord_dict[chord] = zeros
+            from datastructures.base_structures import ProbabilityMatrix
+            chord_dict.update({chord : ProbabilityMatrix(self.size)})
         self.assertEqual(chord_dict, self.tmd.get_dict())
 
     def test_init_with_filename(self):
         self.tmd = None
         self.tmd = ChordTransitionMatrixDictionary(size=self.size, filename="TestChordTransitionMatrixDictionary.txt")
-        self.assertEqual(self.tmd.read("TestChordNoteTransitionMatrixDictionary.txt"), self.tmd.get_dict())
+        self.assertEqual(self.tmd.read("TestChordTransitionMatrixDictionary.txt"), self.tmd.get_dict())
 
-    def test_get_prob_matrix_from_chord(self):
+    def test_update_and_get_prob_matrix_from_chord(self):
         td = ChordTransitionDictionary()
         transitions = []
         for i in range(self.size):
@@ -37,33 +37,14 @@ class TestChordTransitionMatrixDictionary(TestCase):
             from datastructures.transitions import Chord
             chord_transitions.append(ChordTransition(Chord.Maj, Chord.Min))
         td.add_note_transitions(transitions, chord_transitions)
-        from datastructures.transitions import Chord
-        m = self.tmd.get_prob_matrix_from_chord(Chord.Maj)
         for i in range(self.size):
-            for j in range(self.size):
-                if i == j:
-                    self.assertTrue(m[i][j] == 1)
-
-    def test_update(self):
-        td = ChordTransitionDictionary()
-        transitions = []
-        for i in range(self.size):
-            from datastructures.transitions import NoteTransition
-            transitions.append(NoteTransition(i,i))
-        chord_transitions = []
-        for i in range(self.size):
-            from datastructures.transitions import ChordTransition
-            from datastructures.transitions import Chord
-            chord_transitions.append(ChordTransition(Chord.Maj, Chord.Min))
-        td.add_note_transitions(transitions, chord_transitions)
-        for i in range(self.size):
-            for j in range(self.size):
-                self.assertTrue(self.tmd.get_prob_matrix_from_chord(Chord.Maj)[i][j]==0)
+            self.assertTrue(self.tmd.get_prob_matrix_from_chord(
+                 ChordTransition(Chord.Maj, Chord.Min)).get_matrix()[i][i]==0)
         self.tmd.update(td)
+        from datastructures.transitions import Chord
+        m = self.tmd.get_prob_matrix_from_chord(ChordTransition(Chord.Maj, Chord.Min))
         for i in range(self.size):
-            for j in range(self.size):
-                if i == j:
-                    self.assertTrue(self.tmd.get_prob_matrix_from_chord(Chord.maj)[i][j]==1)
+            self.assertTrue(m.get_matrix()[i][i] == 1)
 
     def test_write_and_read(self):
         import pickle
@@ -73,5 +54,4 @@ class TestChordTransitionMatrixDictionary(TestCase):
         with open("TestChordTransitionMatrixDictionary.txt", "rb") as file_a:
             after = pickle.load(file_a)
         self.assertEqual(before, after)
-        pass
 

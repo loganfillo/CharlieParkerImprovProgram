@@ -7,7 +7,7 @@ from exceptions.Exceptions import InvalidTransitionsSizeException
 def make_chord_transitions():
     """
     constructs a list of ChordTransitions which contain every
-    combination of Chords
+    combination of tuples of Chords
     :return list[ChordTransition] transitions:
     """
     transitions = []
@@ -29,7 +29,7 @@ class ChordTransitionDictionary:
     Attributes:
         __dict -- the chord transition dictionary
     """
-    def __init__(self, filename=None, size = None):
+    def __init__(self, filename=None, size=None):
         """
         constructs an empty chord transition dictionary if filename
         is not specified, otherwise constructs a chord transition dictionary
@@ -38,22 +38,21 @@ class ChordTransitionDictionary:
         :param int size: the size of the note dictionaries
         """
         self.__dict = None
+        self.__size = size
 
-        if size is not None:
-            self.__size = None
         if filename is not None:
             self.__dict = self.read(filename)
         else:
-            self.__create_empty_dict()
-
+            self.__dict = self.__create_empty_dict()
 
     def __repr__(self):
-        # TODO
-        return None
+        s = ""
+        for key in self.__dict:
+            s += key.__repr__() + "\n" + self.__dict[key].__repr__() + "\n"
+        return s
 
     def __iter__(self):
-        # TODO
-        return None
+        return self.__dict.__iter__()
 
     def get_dict(self):
         return self.__dict
@@ -76,23 +75,12 @@ class ChordTransitionDictionary:
         :param list[ChordTransition] chord_transitions: the list of chord transitions
         :return None:
         """
-
-        #TODO write tests for exception
         if len(note_transitions) != len(chord_transitions):
             raise InvalidTransitionsSizeException()
 
         for i in range(len(note_transitions)):
             nd = self.__dict[chord_transitions[i]]
             nd.add_note_transitions([note_transitions[i]])
-
-    def write(self, filename):
-        """
-        writes self's dict into a file with given filename
-        :param string filename: the file to be written to
-        :return:
-        """
-        with open(filename, "rb") as file:
-            pickle.dump(self.__dict, file)
 
     def read(self, filename):
         """
@@ -101,12 +89,20 @@ class ChordTransitionDictionary:
         :param string filename: the file to be read from
         :return dict{ChordTransition: NoteTransitionDictionary:
         """
-        with open(filename, "wb") as file:
+        with open(filename, "rb") as file:
             self.__dict = pickle.load(file)
         return self.__dict
 
+    def write(self, filename):
+        """
+        writes self's dict into a file with given filename
+        :param string filename: the file to be written to
+        :return:
+        """
+        with open(filename, "wb") as file:
+            pickle.dump(self.__dict, file)
+
     def __create_empty_dict(self):
-        #TODO comprehensify this
         d = dict()
         for transition in make_chord_transitions():
             if self.__size is None:
@@ -122,7 +118,7 @@ class ChordTransitionMatrixDictionary:
     between notes over the ChordTransition k
 
     Attributes:
-        __matrix -- the chord transition matrix
+        __dict -- the chord transition matrix dictionary
     """
     def __init__(self, filename=None, size=None):
         """
@@ -134,21 +130,21 @@ class ChordTransitionMatrixDictionary:
         :param int size: the size of the probability matrices (only for testing purposes)
         """
         self.__dict = None
+        self.__size = size
 
-        if size is not None:
-            self.__size = None
         if filename is not None:
             self.__dict = self.read(filename)
         else:
-            self.__create_empty_dict()
+            self.__dict = self.__create_empty_dict()
 
     def __repr__(self):
-        #TODO
-        return None
+        s = ""
+        for key in self.__dict:
+            s += key.__repr__() + "\n" + self.__dict[key].__repr__() + "\n"
+        return s
 
     def __iter__(self):
-        # TODO
-        return None
+        return self.__dict.__iter__()
 
     def get_dict(self):
         return self.__dict
@@ -171,7 +167,18 @@ class ChordTransitionMatrixDictionary:
         """
         for chord_transition in chord_transition_dictionary:
             pm = self.__dict[chord_transition]
-            pm.update(chord_transition_dictionary[chord_transition])
+            pm.update(chord_transition_dictionary.get_note_dict_from_chord(chord_transition))
+
+    def read(self, filename):
+        """
+        reads the file with given filename and stores it into a
+        dictionary then returns it
+        :param string filename: the file to be read from
+        :return dict{ChordTransition: ProbabilityMatrix}
+        """
+        with open(filename, "rb") as file:
+            self.__dict = pickle.load(file)
+        return self.__dict
 
     def write(self, filename):
         """
@@ -179,22 +186,10 @@ class ChordTransitionMatrixDictionary:
         :param string filename: the file to write to
         :return None:
         """
-        with open(filename, "rb") as file:
+        with open(filename, "wb") as file:
             pickle.dump(self.__dict, file)
 
-    def read(self, filename):
-        """
-        reads the file with given filename and stores it into a
-        dictionary then returns it
-        :param string filename: the file to be read from
-        :return dict{ChordTransition: ProbabilityMatrix:
-        """
-        with open(filename, "wb") as file:
-            self.__dict = pickle.load(file)
-        return self.__dict
-
     def __create_empty_dict(self):
-        #TODO comprehensify this
         d = dict()
         for transition in make_chord_transitions():
             if self.__size is None:

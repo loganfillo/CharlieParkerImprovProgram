@@ -22,7 +22,6 @@ class TestTransition(TestCase):
     def test_equals_is_equal(self):
         t1 = Transition(1,2)
         t2 = Transition(1,2)
-        print(t1 == t2)
         self.assertEqual(t1,t2)
 
 
@@ -65,6 +64,6 @@ class TestChordTransition(TestCase):
         self.assertRaises(InvalidChordException, ChordTransition, 0, 127)
 
     def test_init_valid(self):
-        t = ChordTransition(Chord.Maj, Chord.HalfDIm)
+        t = ChordTransition(Chord.Maj, Chord.HalfDim)
         self.assertEqual(Chord.Maj, t.get_start())
-        self.assertEqual(Chord.HalfDIm, t.get_end())
+        self.assertEqual(Chord.HalfDim, t.get_end())

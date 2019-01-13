@@ -12,10 +12,10 @@ class TestChordTransitionDictionary(TestCase):
         self.td = None
         self.td = ChordTransitionDictionary(size=self.size)
         chords = make_chord_transitions()
-        empty_dict = {x: {y: 0 for y in range(self.size)} for x in range(self.size)}
-        chord_dict = []
+        chord_dict = {}
         for chord in chords:
-            chord_dict[chord] = empty_dict
+            from datastructures.base_structures import NoteTransitionDictionary
+            chord_dict.update({chord: NoteTransitionDictionary(self.size)})
         self.assertTrue(chord_dict, self.td.get_dict())
 
     def test_init_with_filename(self):
@@ -23,7 +23,7 @@ class TestChordTransitionDictionary(TestCase):
         self.td = ChordTransitionDictionary(size=self.size, filename="TestChordTransitionDictionary.txt")
         self.assertEqual(self.td.read("TestChordTransitionDictionary.txt"), self.td.get_dict())
 
-    def test_get_note_dict_from_chord(self):
+    def test_add_note_transitions_and_get_note_dict_from_chord(self):
         transitions = []
         for i in range(self.size):
             from datastructures.transitions import NoteTransition
@@ -33,27 +33,16 @@ class TestChordTransitionDictionary(TestCase):
             from datastructures.transitions import ChordTransition
             from datastructures.transitions import Chord
             chord_transitions.append(ChordTransition(Chord.Maj, Chord.Min))
+        self.td.add_note_transitions(transitions,chord_transitions)
         d = self.td.get_note_dict_from_chord(ChordTransition(Chord.Maj, Chord.Min))
         for i in range(self.size):
-            for j in range(self.size):
-                if i ==j:
-                    self.assertTrue(d[i][j] == 1)
+            self.assertTrue(d.get_dict()[i][i] == 1)
 
-    def test_add_note_transitions(self):
-        transitions = []
-        for i in range(self.size):
-            from datastructures.transitions import NoteTransition
-            transitions.append(NoteTransition(i, i))
-        chord_transitions = []
-        for i in range(self.size):
-            from datastructures.transitions import ChordTransition
-            from datastructures.transitions import Chord
-            chord_transitions.append(ChordTransition(Chord.Maj, Chord.Min))
-        self.td.add_note_transitions(transitions, chord_transitions)
-        d = self.td.get_note_dict_from_chord(ChordTransition(Chord.Maj, Chord.Min))
-        for i in range(self.size):
-            self.assertTrue(self.td[i][i] == 1)
-
+    def test_add_note_transitions_invalid_sizes(self):
+        transitions = [i for i in range(self.size)]
+        chord_transitions = [i for i in range(self.size-1)]
+        from exceptions.Exceptions import InvalidTransitionsSizeException
+        self.assertRaises(InvalidTransitionsSizeException, self.td.add_note_transitions, transitions, chord_transitions)
 
     def test_read_and_write(self):
         import pickle

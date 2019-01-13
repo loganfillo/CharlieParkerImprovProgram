@@ -78,6 +78,9 @@ class NoteTransitionDictionary:
         else:
             self.__create_empty_dict()
 
+    def __eq__(self, other):
+        return isinstance(other, NoteTransitionDictionary) and other.get_dict() == self.__dict
+
     def __iter__(self):
         return self.__dict.__iter__()
 
@@ -157,14 +160,17 @@ class ProbabilityMatrix:
         else:
             self.__create_zero_matrix()
 
+    def __eq__(self, other):
+        return isinstance(other, ProbabilityMatrix) and other.get_matrix() == self.__matrix
+
     def __iter__(self):
         return self.__matrix.__iter__()
 
     def __repr__(self):
-        string = "\n"
+        string = "[\n"
         for row in self.__matrix:
             string += str(row) + "\n"
-        return string
+        return string + "]"
 
     def get_matrix(self):
         return self.__matrix
@@ -181,7 +187,7 @@ class ProbabilityMatrix:
 
     def power(self, times):
         """
-        if times is note greater than 0, raises InvalidPowerException, else
+        if times is not greater than 0, raises InvalidPowerException, else
         returns a copy of self's matrix raised to the power given by times
         :param int times: the power to which the matrix is raised
         :return list[list[int]]:
@@ -191,7 +197,7 @@ class ProbabilityMatrix:
 
         current_matrix = self.__matrix[:]
         while times - 1 > 0:
-            current_matrix = self.__new_matrix(current_matrix)
+            current_matrix = self.__make_new_matrix(current_matrix)
             times -= 1
 
         return current_matrix
@@ -229,14 +235,14 @@ class ProbabilityMatrix:
     def __create_zero_matrix(self):
         self.__matrix = [[0 for column in range(self.__size)] for row in range(self.__size)]
 
-    def __new_matrix(self, matrix):
-        return [self.__make_row(matrix[row]) for row in range(self.__size)]
+    def __make_new_matrix(self, matrix):
+        return [self.__make_new_row(matrix[row]) for row in range(self.__size)]
 
-    def __make_row(self, row_m):
+    def __make_new_row(self, row_m):
         transpose = self.transpose()
-        return [self.__make_entry(row_m, transpose[column]) for column in range(self.__size)]
+        return [self.__make_new_entry(row_m, transpose[column]) for column in range(self.__size)]
 
-    def __make_entry(self, row_m, row_t):
+    def __make_new_entry(self, row_m, row_t):
         return sum([x*y for x,y in zip(row_m, row_t)])
 
     def __update_entries(self, row, sub_dict):

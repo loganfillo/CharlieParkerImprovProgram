@@ -20,12 +20,13 @@ class Transition:
         self.__end = end
 
     def __eq__(self, other):
-        if isinstance(other, Transition):
-            f = self.__start == other.get_start()
-            s = self.__end == other.get_end()
-            return f and s
-        else:
-            return False
+        return isinstance(other, Transition) and other.__key() == self.__key()
+
+    def __key(self):
+        return (self.__start, self.__end)
+
+    def __hash__(self):
+        return hash(self.__key())
 
     def __repr__(self):
         return str((self.__start, self.__end))
@@ -69,7 +70,6 @@ class NoteTransition(Transition):
 
 
 class ChordTransition(Transition):
-    #TODO make this hashable, ie override hash and equal
     """a tuple object containing a starting chord and ending chord which represents
     a transition between chords. Made for use in ChordTransition structures
 
@@ -90,7 +90,7 @@ class ChordTransition(Transition):
         super().__init__(start, end)
 
     def __repr__(self):
-        return (self.get_start().name, self.get_end().name)
+        return str((self.get_start().name, self.get_end().name))
 
     def __valid_chord(self, start, end):
         return isinstance(start, Chord) and isinstance(end, Chord)
@@ -99,7 +99,7 @@ class ChordTransition(Transition):
 @unique
 class Chord(Enum):
     """
-    represents an enumeration of the different chord types
+    represents an enumeration of the different common chord types
 
     Values:
         Maj
@@ -111,5 +111,5 @@ class Chord(Enum):
     Maj = 1
     Min = 2
     Dom = 3
-    HalfDIm = 4
+    HalfDim = 4
     Dim = 5
