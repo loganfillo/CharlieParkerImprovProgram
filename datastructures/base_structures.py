@@ -58,7 +58,7 @@ class NoteTransitionDictionary:
          __size -- the number of keys in the dictionary
          __dict -- the note transition dictionary
     """
-
+    
     def __init__(self, size=DEFAULT_SIZE, filename=None):
         """
         if size is note greater than 0, raises InvalidSizeException, else

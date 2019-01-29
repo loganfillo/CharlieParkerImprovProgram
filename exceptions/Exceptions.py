@@ -18,3 +18,6 @@ class InvalidChordException(Exception):
 
 class InvalidTransitionsSizeException(Exception):
     pass
+
+class InvalidTrackListException(Exception):
+    pass

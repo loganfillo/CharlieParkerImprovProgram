@@ -108,8 +108,8 @@ class Chord(Enum):
         HalfDim
         Dim
     """
-    Maj = 1
-    Min = 2
-    Dom = 3
-    HalfDim = 4
-    Dim = 5
+    Maj = 0
+    Min = 1
+    Dom = 2
+    HalfDim = 3
+    Dim = 4
